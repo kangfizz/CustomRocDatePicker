@@ -15,8 +15,8 @@ const count = ref(0)
   h1 {{ msg }}
   .card
     button(
-type="button"
-@click="count++") count is {{ count }}
+      type="button"
+      @click="count++") count is {{ count }}
     // tag interpolation
     p Edit #[code components/HelloWorld.vue] 
       to test HMR

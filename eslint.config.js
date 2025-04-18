@@ -20,7 +20,8 @@ export default [
       vue: pluginVue
     },
     rules: {
-      'no-unused-vars': 'warn',
+      // 'no-unused-vars': 'warn',
+      'no-unused-vars': ["error", { "argsIgnorePattern": "^_" }],
       '@stylistic/indent': ['error', 2],
       '@stylistic/semi': ['error', 'never'],
       '@stylistic/space-before-function-paren': ['error', 'always'],
@@ -29,7 +30,7 @@ export default [
       }],
       "vue/max-attributes-per-line": ["error", {
         "singleline": {
-          "max": 3
+          "max": 10
         },      
         "multiline": {
           "max": 2

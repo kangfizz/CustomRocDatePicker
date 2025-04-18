@@ -1,19 +1,19 @@
 <script setup>
 import RocCustomDatePicker from '@/components/RocCustomDatePicker.vue'
+import TestDatePicker from '@/components/TestDatePicker.vue'
+import {  ref } from 'vue'
+
+// data
+const date = ref('')
+
 </script>
 
 <template lang="pug">
   // 測試註解
   .text-center.mb-4.text-2xl.font-bold 民國年日期選擇器
-  roc-custom-date-picker
+  roc-custom-date-picker(v-model:date="date")
+  test-date-picker.mt-4
     
-  //- .flex.flex-nowrap.justify-center.items-center
-  //-   a(href="https://vite.dev" target="_blank")
-  //-     img.logo(src="/vite.svg" alt="Vite logo")
-  //-   a(href="https://vuejs.org/" target="_blank")
-  //-     img.logo.vue(src="@/assets/vue.svg" alt="Vue logo")
-  //- h1.text-3xl.font-bold.underline.my-4 Hello world!
-  //- HelloWorld(msg="Vite + Vue3")
 </template>
 
 <style scoped>
