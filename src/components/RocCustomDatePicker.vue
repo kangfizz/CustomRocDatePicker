@@ -6,7 +6,7 @@
     <div class="input-wrapper px-2">
       <input
         type="text"
-        v-model="myDate"
+        v-model="displayedDate"
         :placeholder="placeholder"
         class="outline-none !border-hidden"
         :readonly="readonly"
@@ -22,68 +22,99 @@
     </div>
     <div
       v-if="showCalendar"
+      id="custom-calendar"
       class="calendar"
       @click.stop
     >
-      <div class="flex gap-x-4 items-center mb-6">
-        <div>
-          <label for="year">年份：</label>
-          <select
-            id="year"
-            v-model="selectedYear"
-            @change="generateCalendar"
+      <div v-if="selectedType === 'date'" class="flex gap-x-4 items-center mb-6">
+        <div class="flex gap-x-2 items-center">
+          <base-button @click="changeCalendar('minusYear')">
+            <template #icon>
+              <ChevronLeftIcon />
+            </template>
+          </base-button>
+          <base-button
+            @click="changeCalendarType('year')"
           >
-            <option
-              v-for="year in years"
-              :key="year"
-              :value="year"
-            >{{ year }}</option>
-          </select>
+            {{ displayedYear }}
+          </base-button>
+          <base-button @click="changeCalendar('plusYear')">
+            <template #icon>
+              <ChevronRightIcon />
+            </template>
+          </base-button>
         </div>
-        <!-- <div>
-          <label for="month">月份：</label>
-          <select
-            id="month"
-            v-model="selectedMonth"
-            @change="generateCalendar"
+        <div class="flex gap-x-2 items-center">
+          <base-button @click="changeCalendar('minusMonth')">
+            <template #icon>
+              <ChevronLeftIcon />
+            </template>
+          </base-button>
+          <base-button
+            @click="changeCalendarType('month')"
           >
-            <option
-              v-for="(month, index) in months"
-              :key="index"
-              :value="index + 1"
-            >{{ month }}</option>
-          </select>
-        </div> -->
-        <base-button
-          @click="changeCalendarType('month')"
-        >
-          {{ displayedMonth }}
+            {{ displayedMonth }}
+          </base-button>
+          <base-button @click="changeCalendar('plusMonth')">
+            <template #icon>
+              <ChevronRightIcon />
+            </template>
+          </base-button>
+        </div>
+      </div>
+      <div v-if="selectedType === 'year'" class="flex flex-nowrap gap-x-2 items-center">
+        <base-button :disabled="yearRangeIndex === 0" @click="yearRangeIndex--">
+          <template #icon>
+            <ChevronLeftIcon />
+          </template>
+        </base-button>
+        <div class="year-calendar">
+          <template v-for="(year, idx) in years">
+            <div
+              v-if="year"
+              :key="idx"
+              @click="canClick('year', year) ? selectYear(year) : undefined"
+              :class="{ 'selected': year === selectedYear && canClick('year', year), 'item': true, 'disabled': year > new Date().getFullYear() - 1911 }"
+            >
+              {{ year }}
+            </div>
+          </template>
+        </div>
+        <base-button :disabled="yearRangeIndex === currentYearRangeIndex && !needFuture" @click="yearRangeIndex++">
+          <template #icon>
+            <ChevronRightIcon />
+          </template>
         </base-button>
       </div>
       <div v-if="selectedType === 'month'" class="month-calendar">
         <div
           v-for="(month, idx) in months"
           :key="idx"
-          @click="selectMonth(month.value)"
-          :class="{ 'selected': month.value === selectedMonth, 'day': true }"
+          @click="canClick('month', month.value) ? selectMonth(month.value) : undefined"
+          :class="{ 
+            'selected': month.value === selectedMonth && canClick('month', month.value), 'item': true, 
+            'disabled': !canClick('month', month.value)
+          }"
         >
           {{ month.text }}
         </div>
       </div>
-      <div v-if="selectedType === 'date'" class="day-calendar">
-        <div v-for="weekday in weekdays" :key="weekday" class="mb-4 font-black">{{ weekday }}</div>
-        <span
-          v-for="blank in firstDayOfMonth"
-          :key="'blank-' + blank"
-          class="blank-date day"
-        ></span>
-        <div
-          v-for="day in calendarDays"
-          :key="day"
-          @click="selectDate(day)"
-          :class="{ 'selected': day === selectedDay, 'day': true }"
-        >
-          {{ day }}
+      <div>
+        <div v-if="selectedType === 'date'" class="day-calendar">
+          <div v-for="weekday in weekdays" :key="weekday" class="mb-4 font-black">{{ weekday }}</div>
+          <span
+            v-for="blank in firstDayOfMonth"
+            :key="'blank-' + blank"
+            class="blank-date item"
+          ></span>
+          <div
+            v-for="day in calendarDays"
+            :key="day"
+            @click="canClick('date', day) ? selectDate(day) : undefined"
+            :class="{ 'selected': day === selectedDay && canClick('date', day), 'item': true, 'disabled': !canClick('date', day) }"
+          >
+            {{ day }}
+          </div>
         </div>
       </div>
     </div>
@@ -94,12 +125,16 @@
 import { ref, computed, defineComponent, onMounted, watch } from 'vue'
 import BaseButton from '@/components/button/BaseButton.vue'
 import CalendarIcon from '@/components/svg/CalendarIcon.vue'
+import ChevronLeftIcon from '@/components/svg/ChevronLeftIcon.vue'
+import ChevronRightIcon from '@/components/svg/ChevronRightIcon.vue'
 
 export default defineComponent ({
   name: 'RocCustomDatePicker',
   components: {
     BaseButton,
     CalendarIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon
   },
   props: {
     date: {
@@ -117,7 +152,17 @@ export default defineComponent ({
     readonly: {
       type: Boolean,
       default: false,
-    }
+    },
+    needFuture: {
+      type: Boolean,
+      default: false,
+    },
+    // 是否自動轉換成 ROC 年格式
+    // 例如：2023/10/01 會轉換成 112/10/01
+    autoToRocFormat: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['update:date'],
   setup (props, { emit }) {
@@ -129,6 +174,10 @@ export default defineComponent ({
     // NOTE: selectedType 要用來切換日期、月份等功能
     // date (default), month, year, decade
     const selectedType = ref('date')
+    const yearRangeIndex = ref(null)
+    const currentYearRangeIndex = ref(Math.floor((new Date().getFullYear() - 1911) / 15))
+
+    const displayedDate = ref(null)
 
     const weekdays = ["日", "一", "二", "三", "四", "五", "六"]
     const months = [
@@ -156,23 +205,27 @@ export default defineComponent ({
       return months.find(month => month.value === selectedMonth.value)?.text || ''
     })
 
+    const displayedYear = computed(() => {
+      return `民國 ${selectedYear.value} 年`
+    })
+
     const years = computed(() => {
-      const currentYear = new Date().getFullYear() - 1911
-      const range = 100
-      return Array.from({ length: range }, (_, i) => currentYear - i)
+      const listFirstYear = yearRangeIndex.value * 15
+
+      const range = 15
+      return Array.from({ length: range }, (_, i) => listFirstYear + i)
     })
 
     const firstDayOfMonth = computed(() => {
       const year = selectedYear.value
       const month = selectedMonth.value
       if (!year || !month) return 0
-      console.log('firstDayOfMonth:', new Date(year + 1911, month - 1, 1).getDay())
       // 這裡的 year 是民國年，所以要加上 1911
       return new Date(year + 1911, month - 1, 1).getDay()
     })
 
     // watch
-    watch(() => myDate.value, (newValue, oldValue) => {
+    watch(() => displayedDate.value, (newValue, oldValue) => {
       if (newValue !== oldValue) {
         console.log('enter watch:', newValue)
         const dateList = newValue.split(props.splitter)
@@ -183,11 +236,18 @@ export default defineComponent ({
         selectedYear.value = parseInt(dateList[0])
         selectedMonth.value = parseInt(dateList[1])
         selectedDay.value = parseInt(dateList[2])
+        // 更改 myDate 的值
+        if (props.autoToRocFormat) {
+          myDate.value = `${selectedYear.value + 1911}/${selectedMonth.value}/${selectedDay.value}`
+        } else {
+          myDate.value = newValue
+        }
       }
     })
 
     // methods
-    const generateCalendar = () => {
+    const generateDayCalendar = () => {
+      // 生成 該年份 + 該月份 的日期
       calendarDays.value = []
       if (selectedYear.value && selectedMonth.value) {
         const year = selectedYear.value + 1911
@@ -197,11 +257,35 @@ export default defineComponent ({
       }
     }
 
+    const changeCalendar = (type) => {
+      if (type === 'minusYear') {
+        selectedYear.value -= 1
+      } else if (type === 'plusYear') {
+        selectedYear.value += 1
+      } else if (type === 'minusMonth') {
+        if (selectedMonth.value > 1) selectedMonth.value -= 1
+        else {
+          selectedMonth.value = 12
+          selectedYear.value -= 1
+        }
+      } else if (type === 'plusMonth') {
+        if (selectedMonth.value < 12) selectedMonth.value += 1
+        else {
+          selectedMonth.value = 1
+          selectedYear.value += 1
+        }
+      }
+      generateDayCalendar()
+    }
+
     const toggleCalendar = () => {
-      showCalendar.value = !showCalendar.value
+      setTimeout(() => {
+        showCalendar.value = !showCalendar.value
+      }, 50)
     }
 
     const closeCalendar = () => {
+      selectedType.value = 'date'
       showCalendar.value = false
     }
 
@@ -209,20 +293,22 @@ export default defineComponent ({
       selectedType.value = type
     }
 
+    const selectYear = (year) => {
+      selectedYear.value = year
+      selectedType.value = 'month'
+      selectedMonth.value = null
+    }
+
     const selectMonth = (month) => {
       selectedMonth.value = month
       selectedType.value = 'date'
       selectedDay.value = null
-      generateCalendar()
+      generateDayCalendar()
     }
 
     const selectDate = (day) => {
-      console.log('day:', day)
-      console.log('selectedYear.value:', selectedYear.value)
-      console.log('selectedMonth.value:', selectedMonth.value)
       selectedDay.value = day
-      myDate.value = `${selectedYear.value}/${selectedMonth.value}/${selectedDay.value}`
-      console.log('myDate.value', myDate.value)
+      displayedDate.value = [selectedYear.value, selectedMonth.value, selectedDay.value].join(props.splitter)
       showCalendar.value = false
     }
 
@@ -232,6 +318,20 @@ export default defineComponent ({
       selectedYear.value = today.getFullYear() - 1911
       selectedMonth.value = today.getMonth() + 1
       selectedDay.value = null
+      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
+    }
+
+    const canClick = (type, value) => {
+      if (props.needFuture) return true
+
+      // 當不需要未來的日期時，才會進行判斷
+      if (type === 'year') {
+        return value > new Date().getFullYear() - 1911 ? false : true
+      } else if (type === 'month') {
+        return selectedYear.value >= new Date().getFullYear() - 1911 && value > new Date().getMonth() + 1 ? false : true
+      } else if (type === 'date') {
+        return new Date(selectedYear.value + 1911, selectedMonth.value - 1, value) > new Date() ? false : true
+      }
     }
 
     // mounted
@@ -241,15 +341,27 @@ export default defineComponent ({
         selectedYear.value = parseInt(dateList[0]) - 1911
         selectedMonth.value = parseInt(dateList[1])
         selectedDay.value = parseInt(dateList[2])
+        displayedDate.value = `${selectedYear.value}${props.splitter}${selectedMonth.value}${props.splitter}${selectedDay.value}`
       } else setDefault()
       setTimeout(() => {
-        generateCalendar()
+        generateDayCalendar()
       }, 100)
+
+      // 設定點擊外部關閉日曆
+      document.addEventListener('click', (event) => {
+        const target = event.target
+        if (target.id !== 'custom-calendar' && showCalendar.value) {
+          closeCalendar()
+        }
+      })
     })
 
     return {
+      changeCalendar,
       changeCalendarType,
+      displayedDate,
       displayedMonth,
+      displayedYear,
       firstDayOfMonth,
       showCalendar,
       selectedYear,
@@ -260,12 +372,16 @@ export default defineComponent ({
       years,
       toggleCalendar,
       closeCalendar,
-      generateCalendar,
+      generateDayCalendar,
       selectDate,
       selectMonth,
+      selectYear,
       selectedType,
       weekdays,
-      myDate
+      myDate,
+      yearRangeIndex,
+      currentYearRangeIndex,
+      canClick
     }
   },
 })
@@ -340,14 +456,14 @@ export default defineComponent ({
   margin-top: 10px;
 }
 
-.month-calendar {
+.month-calendar, .year-calendar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   margin-top: 10px;
 }
 
-.day-calendar div.day, .month-calendar div.day {
+.day-calendar div.item, .month-calendar div.item, .year-calendar div.item {
   padding: 10px;
   text-align: center;
   background-color: #f9f9f9;
@@ -355,12 +471,13 @@ export default defineComponent ({
   cursor: pointer;
 }
 
-.day-calendar div.selected, .month-calendar div.selected {
+.day-calendar div.selected, .month-calendar div.selected, .year-calendar div.selected {
   color: white;
   background-color: #007bff;
 }
 
-.day-calendar div.day:hover, .month-calendar div.day:hover {
+.day-calendar div.item:hover, .month-calendar div.item:hover, .year-calendar div.item:hover {
   background-color: #e0e0e0;
 }
+
 </style>

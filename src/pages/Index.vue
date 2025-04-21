@@ -1,10 +1,10 @@
 <script setup>
 import RocCustomDatePicker from '@/components/RocCustomDatePicker.vue'
-import TestDatePicker from '@/components/TestDatePicker.vue'
+// import TestDatePicker from '@/components/TestDatePicker.vue'
 import {  ref } from 'vue'
 
 // data
-const date = ref('')
+const date = ref('2024/09/05')
 
 </script>
 
@@ -12,8 +12,7 @@ const date = ref('')
   // 測試註解
   .text-center.mb-4.text-2xl.font-bold 民國年日期選擇器
   roc-custom-date-picker(v-model:date="date")
-  test-date-picker.mt-4
-    
+  //- test-date-picker.mt-4
 </template>
 
 <style scoped>

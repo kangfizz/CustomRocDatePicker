@@ -1,5 +1,5 @@
 <template lang="pug">
-  button(:class="customClass" @click="emit('click')")
+  button(type="button" :class="customClass" @click="disabled ? undefined : emit('click')" :disabled="disabled")
     slot(name="icon")
     slot(name="default")
 </template>
@@ -12,6 +12,10 @@ defineProps({
   customClass: {
     type: String,
     default: 'icon-button'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   },
 })
 </script>
@@ -33,6 +37,12 @@ defineProps({
   &:focus {
     outline: none;
   }
+
+  &:disabled {
+    background-color: unset !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .icon-button svg {
@@ -40,4 +50,6 @@ defineProps({
   height: 20px;
   color: #333;
 }
+
+
 </style>
