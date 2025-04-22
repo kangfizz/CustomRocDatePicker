@@ -36,7 +36,7 @@
           <base-button
             @click="changeCalendarType('year')"
           >
-            {{ displayedYear }}
+            <div class="whitespace-nowrap">{{ displayedYear }}</div>
           </base-button>
           <base-button @click="changeCalendar('plusYear')">
             <template #icon>
@@ -53,7 +53,7 @@
           <base-button
             @click="changeCalendarType('month')"
           >
-            {{ displayedMonth }}
+            <div class="whitespace-nowrap">{{ displayedMonth }}</div>
           </base-button>
           <base-button @click="changeCalendar('plusMonth')">
             <template #icon>
@@ -74,7 +74,7 @@
               v-if="year"
               :key="idx"
               @click="canClick('year', year) ? selectYear(year) : undefined"
-              :class="{ 'selected': year === selectedYear && canClick('year', year), 'item': true, 'disabled': year > new Date().getFullYear() - 1911 }"
+              :class="{ 'selected': year === selectedYear && canClick('year', year), 'item': true, 'disabled': !canClick('year', year) }"
             >
               {{ year }}
             </div>
@@ -318,7 +318,6 @@ export default defineComponent ({
       selectedYear.value = today.getFullYear() - 1911
       selectedMonth.value = today.getMonth() + 1
       selectedDay.value = null
-      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
     }
 
     const canClick = (type, value) => {
@@ -343,6 +342,7 @@ export default defineComponent ({
         selectedDay.value = parseInt(dateList[2])
         displayedDate.value = `${selectedYear.value}${props.splitter}${selectedMonth.value}${props.splitter}${selectedDay.value}`
       } else setDefault()
+      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
       setTimeout(() => {
         generateDayCalendar()
       }, 100)
