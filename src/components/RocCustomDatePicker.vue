@@ -13,6 +13,7 @@
         @click="readonly ? toggleCalendar : undefined"
       />
       <base-button
+        ref="calendarButtonRef"
         @click="toggleCalendar"
       >
         <template #icon>
@@ -28,7 +29,7 @@
     >
       <div v-if="selectedType === 'date'" class="flex gap-x-4 items-center mb-6">
         <div class="flex gap-x-2 items-center">
-          <base-button @click="changeCalendar('minusYear')">
+          <base-button @click="changeCalendar('minusYear')" :disabled="selectedYear === 1">
             <template #icon>
               <ChevronLeftIcon />
             </template>
@@ -111,7 +112,7 @@
             v-for="day in calendarDays"
             :key="day"
             @click="canClick('date', day) ? selectDate(day) : undefined"
-            :class="{ 'selected': day === selectedDay && canClick('date', day), 'item': true, 'disabled': !canClick('date', day) }"
+            :class="{ 'selected': checkIsSelectedDate(day) && canClick('date', day), 'item': true, 'disabled': !canClick('date', day) }"
           >
             {{ day }}
           </div>
@@ -127,6 +128,7 @@ import BaseButton from '@/components/button/BaseButton.vue'
 import CalendarIcon from '@/components/svg/CalendarIcon.vue'
 import ChevronLeftIcon from '@/components/svg/ChevronLeftIcon.vue'
 import ChevronRightIcon from '@/components/svg/ChevronRightIcon.vue'
+import { fillZero, validateDate } from '@/utils/dateHelper.js'
 
 export default defineComponent ({
   name: 'RocCustomDatePicker',
@@ -149,15 +151,17 @@ export default defineComponent ({
       type: String,
       default: '/',
     },
+    // NOTE: 設定input readonly屬性, 如果為 true 的話, 變成點選後也會開啟日曆
     readonly: {
       type: Boolean,
       default: false,
     },
+    // NOTE: 是否可需要選擇未來的日期
     needFuture: {
       type: Boolean,
       default: false,
     },
-    // 是否自動轉換成 ROC 年格式
+    // NOTE: 是否自動轉換成 ROC 年格式
     // 例如：2023/10/01 會轉換成 112/10/01
     autoToRocFormat: {
       type: Boolean,
@@ -166,6 +170,12 @@ export default defineComponent ({
   },
   emits: ['update:date'],
   setup (props, { emit }) {
+    // refs 
+    // TODO: 待更新 click event with toggleCalendar
+    const calendarButtonRef = ref(null)
+
+    // data
+    const isInitial = ref(true) // 用來判斷是否是第一次進入
     const showCalendar = ref(false)
     const selectedYear = ref(null)
     const selectedMonth = ref(null)
@@ -206,7 +216,7 @@ export default defineComponent ({
     })
 
     const displayedYear = computed(() => {
-      return `民國 ${selectedYear.value} 年`
+      return parseInt(selectedYear.value) <= 0 ? `民國前 ${Math.abs(selectedYear.value) + 1} 年` : `民國 ${selectedYear.value} 年`
     })
 
     const years = computed(() => {
@@ -227,20 +237,20 @@ export default defineComponent ({
     // watch
     watch(() => displayedDate.value, (newValue, oldValue) => {
       if (newValue !== oldValue) {
-        console.log('enter watch:', newValue)
+        const isValidDate = new Date(newValue).toString() !== 'Invalid Date'
         const dateList = newValue.split(props.splitter)
-        if (new Date(newValue).toString() === 'Invalid Date' || dateList.length !== 3) {
-          setDefault()
+        if (!isValidDate || dateList.length !== 3) {
+          setDefaultCalendar()
           return
         }
         selectedYear.value = parseInt(dateList[0])
         selectedMonth.value = parseInt(dateList[1])
         selectedDay.value = parseInt(dateList[2])
         // 更改 myDate 的值
-        if (props.autoToRocFormat) {
-          myDate.value = `${selectedYear.value + 1911}/${selectedMonth.value}/${selectedDay.value}`
+        if (isValidDate && validateDate(selectedYear.value + 1911, selectedMonth.value, selectedDay.value)) {
+          myDate.value = props.autoToRocFormat ? `${selectedYear.value + 1911}/${fillZero(selectedMonth.value)}/${fillZero(selectedDay.value)}` : newValue
         } else {
-          myDate.value = newValue
+          myDate.value = ''
         }
       }
     })
@@ -278,7 +288,21 @@ export default defineComponent ({
       generateDayCalendar()
     }
 
+    const checkIsSelectedDate = (day) => {
+      const checkedDate = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(day)}`
+      return checkedDate === displayedDate.value
+    }
+
     const toggleCalendar = () => {
+      const dateList = displayedDate.value?.split(props.splitter)
+      if (!dateList || dateList.length !== 3 || !validateDate(parseInt(dateList[0]) + 1911, parseInt(dateList[1]), parseInt(dateList[2]))) {
+        // 如果日期不正確，則設定當前為預設日歷
+        setDefaultCalendar()
+      } else {
+        setCalendar(displayedDate.value)
+        // 自動校正顯示日期
+        displayedDate.value = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(selectedDay.value)}`
+      }
       setTimeout(() => {
         showCalendar.value = !showCalendar.value
       }, 50)
@@ -308,18 +332,41 @@ export default defineComponent ({
 
     const selectDate = (day) => {
       selectedDay.value = day
-      displayedDate.value = [selectedYear.value, selectedMonth.value, selectedDay.value].join(props.splitter)
+      displayedDate.value = [selectedYear.value, fillZero(selectedMonth.value), fillZero(selectedDay.value)].join(props.splitter)
       showCalendar.value = false
     }
 
-    const setDefault = () => {
+    const setDefaultCalendar = () => {
       const today = new Date()
       // 預設給當月, 不選擇日期
       selectedYear.value = today.getFullYear() - 1911
       selectedMonth.value = today.getMonth() + 1
       selectedDay.value = null
+      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
+      setTimeout(() => {
+        generateDayCalendar()
+      }, 100)
     }
 
+    const setCalendar = (dateString, needFormat = false) => {
+      
+      // 設定基礎年月日與生成日曆
+      const dateList = dateString.split(props.splitter)
+      selectedYear.value = needFormat ? parseInt(dateList[0]) - 1911 : parseInt(dateList[0])
+      selectedMonth.value = parseInt(dateList[1])
+      selectedDay.value = parseInt(dateList[2])
+      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
+      setTimeout(() => {
+        generateDayCalendar()
+      }, 100)
+    }
+
+    /**
+     * 依據 props.needFuture 的值 (當 false 時)，決定該日期是否可以被點擊
+     * @param {String} type - 'year', 'month', 'date'
+     * @param {Number} value - 當前的值
+     * @returns {Boolean} - 是否可以點擊
+     */
     const canClick = (type, value) => {
       if (props.needFuture) return true
 
@@ -336,16 +383,12 @@ export default defineComponent ({
     // mounted
     onMounted(() => {
       if (props.date) {
-        const dateList = props.date.split(props.splitter)
-        selectedYear.value = parseInt(dateList[0]) - 1911
-        selectedMonth.value = parseInt(dateList[1])
-        selectedDay.value = parseInt(dateList[2])
-        displayedDate.value = `${selectedYear.value}${props.splitter}${selectedMonth.value}${props.splitter}${selectedDay.value}`
-      } else setDefault()
-      yearRangeIndex.value = Math.floor(selectedYear.value / 15)
-      setTimeout(() => {
-        generateDayCalendar()
-      }, 100)
+        setCalendar(props.date, props.autoToRocFormat)
+        displayedDate.value = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(selectedDay.value)}`
+        isInitial.value = false
+      } else {
+        setDefaultCalendar()
+      }
 
       // 設定點擊外部關閉日曆
       document.addEventListener('click', (event) => {
@@ -357,8 +400,10 @@ export default defineComponent ({
     })
 
     return {
+      calendarButtonRef,
       changeCalendar,
       changeCalendarType,
+      checkIsSelectedDate,
       displayedDate,
       displayedMonth,
       displayedYear,
