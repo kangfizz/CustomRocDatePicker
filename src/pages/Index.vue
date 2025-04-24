@@ -7,6 +7,7 @@ import { ref } from 'vue'
 const nullDate = ref(null)
 const date = ref('2024/09/05')
 const dateSecond = ref('100.01.01')
+const dateThird = ref('')
 
 </script>
 
@@ -18,7 +19,8 @@ const dateSecond = ref('100.01.01')
       div 類型1: 無預設值(null) + readonly
       div.mt-2 選擇日期(民國): 
         span.text-xl {{ nullDate }}
-      roc-custom-date-picker(v-model:date="nullDate" readonly)
+      div
+        roc-custom-date-picker(v-model:date="nullDate" readonly)
     div.w-full
       div 類型2: 有預設值(西元) + 自動轉換格式(西元 轉 民國)
       div.mt-2 選擇日期(西元): 
@@ -29,6 +31,12 @@ const dateSecond = ref('100.01.01')
       div.mt-2 選擇日期(民國): 
         span.text-xl {{ dateSecond }}
       roc-custom-date-picker(v-model:date="dateSecond" splitter="." need-future)
+    div.w-full
+      div 類型4: 無預設值('') +  只需要 icon button
+      div.mt-2 選擇日期(民國): 
+        span.text-xl {{ dateThird }}
+      div.flex.justify-center
+        roc-custom-date-picker(v-model:date="dateThird" :need-input="false")
 </template>
 
 <style scoped>

@@ -2,8 +2,9 @@
   <div
     class="date-picker"
   >
-    <div class="input-wrapper px-2" @click.stop>
+    <div :class="`input-wrapper px-2 ${needInput ? 'border border-solid rounded-[5px] border-[#ccc]' : ''}`" @click.stop>
       <input
+        v-if="needInput"
         type="text"
         v-model="displayedDate"
         :placeholder="placeholder"
@@ -19,103 +20,103 @@
             <CalendarIcon />
           </template>
         </base-button>
-      </div>
-    </div>
-    <div
-      v-if="showCalendar"
-      v-click-outside="closeCalendar"
-      id="customCalendar"
-      class="calendar"
-      @click.stop
-    >
-      <div v-if="selectedType === 'date'" class="flex gap-x-4 items-center mb-6">
-        <div class="flex gap-x-2 items-center">
-          <base-button @click="changeCalendar('minusYear')" :disabled="selectedYear === 1">
-            <template #icon>
-              <ChevronLeftIcon />
-            </template>
-          </base-button>
-          <base-button
-            @click="changeCalendarType('year')"
-          >
-            <div class="whitespace-nowrap">{{ displayedYear }}</div>
-          </base-button>
-          <base-button @click="changeCalendar('plusYear')">
-            <template #icon>
-              <ChevronRightIcon />
-            </template>
-          </base-button>
-        </div>
-        <div class="flex gap-x-2 items-center">
-          <base-button @click="changeCalendar('minusMonth')" :disabled="selectedYear === 1 && selectedMonth === 1">
-            <template #icon>
-              <ChevronLeftIcon />
-            </template>
-          </base-button>
-          <base-button
-            @click="changeCalendarType('month')"
-          >
-            <div class="whitespace-nowrap">{{ displayedMonth }}</div>
-          </base-button>
-          <base-button @click="changeCalendar('plusMonth')">
-            <template #icon>
-              <ChevronRightIcon />
-            </template>
-          </base-button>
-        </div>
-      </div>
-      <div v-if="selectedType === 'year'" class="flex flex-nowrap gap-x-2 items-center">
-        <base-button :disabled="yearRangeIndex === 0" @click="yearRangeIndex--">
-          <template #icon>
-            <ChevronLeftIcon />
-          </template>
-        </base-button>
-        <div class="year-calendar">
-          <template v-for="(year, idx) in years">
-            <div
-              v-if="year"
-              :key="idx"
-              @click="canClick('year', year) ? selectYear(year) : undefined"
-              :class="{ 'selected': year === selectedYear && canClick('year', year), 'item': true, 'disabled': !canClick('year', year) }"
-            >
-              {{ year }}
-            </div>
-          </template>
-        </div>
-        <base-button :disabled="yearRangeIndex === currentYearRangeIndex && !needFuture" @click="yearRangeIndex++">
-          <template #icon>
-            <ChevronRightIcon />
-          </template>
-        </base-button>
-      </div>
-      <div v-if="selectedType === 'month'" class="month-calendar">
         <div
-          v-for="(month, idx) in months"
-          :key="idx"
-          @click="canClick('month', month.value) ? selectMonth(month.value) : undefined"
-          :class="{ 
-            'selected': month.value === selectedMonth && canClick('month', month.value), 'item': true, 
-            'disabled': !canClick('month', month.value)
-          }"
+          v-if="showCalendar"
+          v-click-outside="closeCalendar"
+          id="customCalendar"
+          class="calendar"
+          @click.stop
         >
-          {{ month.text }}
-        </div>
-      </div>
-      <div>
-        <div v-if="selectedType === 'date'" class="day-calendar">
-          <div v-for="weekday in weekdays" :key="weekday" class="mb-4 font-black">{{ weekday }}</div>
-          <span
-            v-for="blank in firstDayOfMonth"
-            :key="'blank-' + blank"
-            class="blank-date item"
-          ></span>
-          <div
-            v-for="day in calendarDays"
-            :key="day"
-            @click="canClick('date', day) ? selectDate(day) : undefined"
-            :class="{ 'selected': checkIsSelectedDate(day) && canClick('date', day), 'item': true, 'disabled': !canClick('date', day) }"
-          >
-            {{ day }}
+          <div v-if="selectedType === 'date'" class="flex gap-x-4 items-center mb-6">
+            <div class="flex gap-x-2 items-center">
+              <base-button @click="changeCalendar('minusYear')" :disabled="selectedYear === 1">
+                <template #icon>
+                  <ChevronLeftIcon />
+                </template>
+              </base-button>
+              <base-button
+                @click="changeCalendarType('year')"
+              >
+                <div class="whitespace-nowrap">{{ displayedYear }}</div>
+              </base-button>
+              <base-button @click="changeCalendar('plusYear')">
+                <template #icon>
+                  <ChevronRightIcon />
+                </template>
+              </base-button>
+            </div>
+            <div class="flex gap-x-2 items-center">
+              <base-button @click="changeCalendar('minusMonth')" :disabled="selectedYear === 1 && selectedMonth === 1">
+                <template #icon>
+                  <ChevronLeftIcon />
+                </template>
+              </base-button>
+              <base-button
+                @click="changeCalendarType('month')"
+              >
+                <div class="whitespace-nowrap">{{ displayedMonth }}</div>
+              </base-button>
+              <base-button @click="changeCalendar('plusMonth')">
+                <template #icon>
+                  <ChevronRightIcon />
+                </template>
+              </base-button>
+            </div>
+          </div>
+          <div v-if="selectedType === 'year'" class="flex flex-nowrap gap-x-2 items-center">
+            <base-button :disabled="yearRangeIndex === 0" @click="yearRangeIndex--">
+              <template #icon>
+                <ChevronLeftIcon />
+              </template>
+            </base-button>
+            <div class="year-calendar">
+              <template v-for="(year, idx) in years">
+                <div
+                  v-if="year"
+                  :key="idx"
+                  @click="canClick('year', year) ? selectYear(year) : undefined"
+                  :class="{ 'selected': year === selectedYear && canClick('year', year), 'item whitespace-nowrap min-w-[70px]': true, 'disabled': !canClick('year', year) }"
+                >
+                  {{ year }}
+                </div>
+              </template>
+            </div>
+            <base-button :disabled="yearRangeIndex === currentYearRangeIndex && !needFuture" @click="yearRangeIndex++">
+              <template #icon>
+                <ChevronRightIcon />
+              </template>
+            </base-button>
+          </div>
+          <div v-if="selectedType === 'month'" class="month-calendar">
+            <div
+              v-for="(month, idx) in months"
+              :key="idx"
+              @click="canClick('month', month.value) ? selectMonth(month.value) : undefined"
+              :class="{ 
+                'selected': month.value === selectedMonth && canClick('month', month.value), 'item whitespace-nowrap min-w-[70px]': true, 
+                'disabled': !canClick('month', month.value)
+              }"
+            >
+              {{ month.text }}
+            </div>
+          </div>
+          <div>
+            <div v-if="selectedType === 'date'" class="day-calendar">
+              <div v-for="weekday in weekdays" :key="weekday" class="mb-4 font-black">{{ weekday }}</div>
+              <span
+                v-for="blank in firstDayOfMonth"
+                :key="'blank-' + blank"
+                class="blank-date item"
+              ></span>
+              <div
+                v-for="day in calendarDays"
+                :key="day"
+                @click="canClick('date', day) ? selectDate(day) : undefined"
+                :class="{ 'selected': checkIsSelectedDate(day) && canClick('date', day), 'item': true, 'disabled': !canClick('date', day) }"
+              >
+                {{ day }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -156,6 +157,11 @@ export default defineComponent ({
     readonly: {
       type: Boolean,
       default: false,
+    },
+    // NOTE: 是否顯示輸入框 (false 則只有 icon button)
+    needInput: {
+      type: Boolean,
+      default: true,
     },
     // NOTE: 是否可需要選擇未來的日期
     needFuture: {
@@ -443,8 +449,6 @@ export default defineComponent ({
   display: flex;
   align-items: center;
   gap: 8px;
-  border: solid 1px #ccc;
-  border-radius: 5px;
 }
 
 .input-wrapper input {
@@ -483,6 +487,7 @@ export default defineComponent ({
   z-index: 1000;
   padding: 10px;
   margin-top: 8px;
+  margin-left: -100px;
   background: white;
   border: 1px solid #ccc;
   border-radius: 5px;
