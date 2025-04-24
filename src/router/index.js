@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  {path: "/", name: "Index", component: () => import("@/pages/Index.vue")}
+  {path: "/custom-roc-date-picker", name: "Index", component: () => import("@/pages/Index.vue")}
 ]
 
 const router = createRouter({

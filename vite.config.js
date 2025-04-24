@@ -6,7 +6,7 @@ import eslintPlugin from 'vite-plugin-eslint'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/custom-roc-date-picker/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
