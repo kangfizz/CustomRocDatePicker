@@ -1,29 +1,30 @@
 <template>
   <div
     class="date-picker"
-    @click.self="closeCalendar"
   >
-    <div class="input-wrapper px-2">
+    <div class="input-wrapper px-2" @click.stop>
       <input
         type="text"
         v-model="displayedDate"
         :placeholder="placeholder"
         class="outline-none !border-hidden"
         :readonly="readonly"
-        @click="readonly ? toggleCalendar : undefined"
+        @click="readonly ? toggleCalendar() : undefined"
       />
-      <base-button
-        ref="calendarButtonRef"
-        @click="toggleCalendar"
-      >
-        <template #icon>
-          <CalendarIcon />
-        </template>
-      </base-button>
+      <div>
+        <base-button
+          @click="toggleCalendar"
+        >
+          <template #icon>
+            <CalendarIcon />
+          </template>
+        </base-button>
+      </div>
     </div>
     <div
       v-if="showCalendar"
-      id="custom-calendar"
+      v-click-outside="closeCalendar"
+      id="customCalendar"
       class="calendar"
       @click.stop
     >
@@ -46,7 +47,7 @@
           </base-button>
         </div>
         <div class="flex gap-x-2 items-center">
-          <base-button @click="changeCalendar('minusMonth')">
+          <base-button @click="changeCalendar('minusMonth')" :disabled="selectedYear === 1 && selectedMonth === 1">
             <template #icon>
               <ChevronLeftIcon />
             </template>
@@ -123,7 +124,7 @@
 </template>
 
 <script>
-import { ref, computed, defineComponent, onMounted, watch } from 'vue'
+import { ref, computed, defineComponent, onMounted, onBeforeUnmount, watch } from 'vue'
 import BaseButton from '@/components/button/BaseButton.vue'
 import CalendarIcon from '@/components/svg/CalendarIcon.vue'
 import ChevronLeftIcon from '@/components/svg/ChevronLeftIcon.vue'
@@ -170,9 +171,6 @@ export default defineComponent ({
   },
   emits: ['update:date'],
   setup (props, { emit }) {
-    // refs 
-    // TODO: 待更新 click event with toggleCalendar
-    const calendarButtonRef = ref(null)
 
     // data
     const isInitial = ref(true) // 用來判斷是否是第一次進入
@@ -304,7 +302,8 @@ export default defineComponent ({
         displayedDate.value = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(selectedDay.value)}`
       }
       setTimeout(() => {
-        showCalendar.value = !showCalendar.value
+        if (!showCalendar.value) showCalendar.value = true
+        else closeCalendar()
       }, 50)
     }
 
@@ -390,17 +389,13 @@ export default defineComponent ({
         setDefaultCalendar()
       }
 
-      // 設定點擊外部關閉日曆
-      document.addEventListener('click', (event) => {
-        const target = event.target
-        if (target.id !== 'custom-calendar' && showCalendar.value) {
-          closeCalendar()
-        }
-      })
+    })
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', closeCalendar)
     })
 
     return {
-      calendarButtonRef,
       changeCalendar,
       changeCalendarType,
       checkIsSelectedDate,

@@ -15,10 +15,10 @@ const dateSecond = ref('100.01.01')
   .text-center.mb-4.font-bold.text-xl 民國年日期選擇器
   div.flex.flex-wrap.gap-y-6
     div.w-full
-      div 類型1: 無預設值(null)
+      div 類型1: 無預設值(null) + readonly
       div.mt-2 選擇日期(民國): 
         span.text-xl {{ nullDate }}
-      roc-custom-date-picker(v-model:date="nullDate")
+      roc-custom-date-picker(v-model:date="nullDate" readonly)
     div.w-full
       div 類型2: 有預設值(西元) + 自動轉換格式(西元 轉 民國)
       div.mt-2 選擇日期(西元): 
