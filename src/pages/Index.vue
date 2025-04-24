@@ -12,7 +12,6 @@ const dateThird = ref('')
 </script>
 
 <template lang="pug">
-  // 測試註解
   .text-center.mb-4.font-bold.text-xl 民國年日期選擇器
   div.flex.flex-wrap.gap-y-6
     div.w-full

@@ -3,6 +3,7 @@
     class="date-picker"
   >
     <div :class="`input-wrapper px-2 ${needInput ? 'border border-solid rounded-[5px] border-[#ccc]' : ''}`" @click.stop>
+      <!--Input-->
       <input
         v-if="needInput"
         type="text"
@@ -13,6 +14,7 @@
         @click="readonly ? toggleCalendar() : undefined"
       />
       <div>
+        <!--Icon Button-->
         <base-button
           @click="toggleCalendar"
         >
@@ -20,6 +22,7 @@
             <CalendarIcon />
           </template>
         </base-button>
+        <!--Calendar popup-->
         <div
           v-if="showCalendar"
           v-click-outside="closeCalendar"
