@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:doc": "vite build --outDir docs --mode development",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx --fix",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "release": "release-it"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
+    "@rollup/plugin-alias": "^5.1.1",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "autoprefixer": "^10.4.21",
@@ -29,6 +32,7 @@
     "globals": "^16.0.0",
     "postcss-html": "^1.8.0",
     "pug": "^3.0.3",
+    "release-it": "^19.0.1",
     "sass": "^1.86.0",
     "stylelint": "^16.18.0",
     "stylelint-config-recommended-vue": "^1.6.0",
@@ -38,5 +42,11 @@
     "stylelint-scss": "^6.11.1",
     "vite": "^6.2.0",
     "vite-plugin-eslint": "^1.8.1"
+  },
+  "release-it": {
+    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+    "github": {
+      "release": true
+    }
   }
 }
