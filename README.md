@@ -2,65 +2,55 @@
 
 [DOME PAGE](https://kangfizz.github.io/custom-roc-date-picker/)
 
-- ### 主題:
-	- TODO 建立自己定義的套件, 並推上 npm 提供使用
-		- 建立一個 民國日曆(ROC date picker) 套件, 便於顯示與選擇
-		- 配合 Tailwind css 與 headlessUI, 便於撰寫
-		-
-	- TODO 在套件上建立相關　Github Page
-	- TODO 幫助coding時可以使用的 AI 套件 codeium
--
-- ### 使用技術:
-	- Vue3
-	- Vite
-	- Tailwindcss (version 4.x)
-	- HeadlessUI
-		- 與 primevue 比較 [網址](https://npm-compare.com/@headlessui/vue,primevue,tailwindcss-primeui)
-	- SCSS
-	- PUG
-		- 使用原因: 加快開發速度, 並且讓程式碼看起來簡潔
-	- (期望): Typescript
-- ### 動機:
-	- 因為沒有比較好用的民國年選擇器, 沒有比較輕量化的設計 (比如說可以配合客製化 class or 設計成 icon 按鈕)
-	- 挑戰自己, 寫出可客製化且好維護的 package
-- ### 設計規劃:
-	- 設計兩種類型的
-		- 年月日分開型:
-		- 單一 Input 型:　(優先做這個的)
-			- 客製化 class input
-			- 做三個 dialog 顯示 選年份, 選月份, 選日期
-			-
-	- Slot設計:
-		- icon
-		-
-	- Props設計:
-		- placeholder (String: )
-		- needIcon (Boolean: true) 加入 是否顯示 icon
-		-
-	- 如果時間來不及的話,  就建立一個簡單的 select input 就好 (依時間更改計畫, deadline 4/18)
--
-- ### 待作項目:
-	- DONE 引入 PUG (04/09)
-	- DONE 設計民國年邏輯
-		- 使用 chatgpt 輔助完成。
-	- DONE 引入 ESLint
-	- TODO 修改雛形, 改變成月份跟年份皆可選擇
-	- DONE 修正style
-	- TODO 客製化 style
-	- TODO i18n
-	- TODO 建立 Github Page
-	- TODO 在 codepen 建立使用package的範例頁面
--
-- ### 紀錄:
-	- 04/15
-		- 使用ChatGpt, 先建立一個雛形 (基本的 input 與 calendar的 dialog)
-		- 修正 Tailwindcss, 因應版本更改成 4。 (不支援 preprocessor SCSS/SASS)
--
--
-- 相似package比較:
-	- [vue-roc-date-pciker](https://github.com/melodiehsu/vue-roc-date-picker?tab=readme-ov-file)
--
-- 參考文獻:
-	- [ESLint v9 + vite 安裝](https://muki.tw/eslint-format-onsave-in-vscode/)
-	  [PUG官網](https://pugjs.org/api/getting-started.html)
+## Setup (Vite)
 
+- In `main.js`
+````javascript
+import CustomRocDatePicker from 'custom-roc-date-picker'
+...
+...
+const myApp = createApp(App)
+myApp.use(CustomRocDatePicker)
+myApp.mount('#app')
+````
+
+- In `tailwind.config.js`
+````javascript
+  content: [
+    ....
+    './node_modules/custom-roc-date-picker/**/*.{vue,js,ts,jsx,tsx}',
+  ],
+````
+
+## Usage
+
+- In `your_page.vue`
+````javascript
+...
+<custom-roc-date-picker v-model:date="date" />
+...
+````
+
+## Attributes 屬性
+- `date`: 日期選擇器綁定值。
+- `splitter`: 年月日分隔器
+- `placeholder`: Input 預設提示。
+- `disabled`: 是否禁止點選。
+- `readonly`: 是否 Input 為唯讀狀態 (true 的話將可以點擊後popup calendar) 
+- `needInput`: 是否需要 Input (false 的話會只有 icon button)
+- `needFuture`: 是否可以選擇未來的日期
+- `autoToRocFormat`: 是否自動轉換成 ROC 年格式
+
+| Name                | Description                                | Type                   | Accepted Values                     | Default Value |
+|---------------------|--------------------------------------------|------------------------|-------------------------------------|---------------|
+| `date`| Binding value.                        | String                 | Any valid string value               | ''            |
+| `splitter`              | date string splitter.                   | String                 | Any valid string value                        | '/'        |
+| `placeholder`       | Placeholder text.                     | String                 | Any valid string value               | '民國年/月/日'            |
+| `disabled`  | Whether the date picker is disabled.                  | Boolean                 | `true` or `false`         | false |
+| `readonly`              | readonly status of Input & Button                 | Boolean                 | `true` or `false`              | false        |
+| `needInput`      | Whether need Input (false 的話會只有 icon button)           | Boolean                 | `true` or `false` | true            |
+| `needFuture`            | Whether can choice future date      | Boolean                 |  `true` or `false`          | false             |
+| `autoToRocFormat`   | Whether to change date value to roc date   | Boolean                | `true` or `false`                   | false          |
+
+備註:   
+	關於 `autoToRocFormat`參數, 會自動將西元年自動轉換為民國年, 但是僅只是變更並顯示在 Input 上的值, 原本的 `date`仍會是西元年。
