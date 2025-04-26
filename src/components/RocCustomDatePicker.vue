@@ -9,13 +9,15 @@
         type="text"
         v-model="displayedDate"
         :placeholder="placeholder"
-        class="outline-none !border-hidden"
+        :class="`outline-none !border-hidden ${disabled ? 'disabled' : ''}`"
         :readonly="readonly"
+        :disabled="disabled"
         @click="readonly ? toggleCalendar() : undefined"
       />
       <div>
         <!--Icon Button-->
         <base-button
+          :disabled="disabled"
           @click="toggleCalendar"
         >
           <template #icon>
@@ -177,6 +179,10 @@ export default defineComponent ({
       type: Boolean,
       default: false,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    }
   },
   emits: ['update:date'],
   setup (props, { emit }) {

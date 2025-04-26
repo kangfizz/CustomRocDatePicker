@@ -1,5 +1,5 @@
 <template lang="pug">
-  button(type="button" :class="customClass" @click="disabled ? undefined : emit('click')" :disabled="disabled")
+  button(type="button" :class="`${customClass} ${disabled ? 'disabled' : ''}`" @click="disabled ? undefined : emit('click')" :disabled="disabled")
     slot(name="icon")
     slot(name="default")
 </template>

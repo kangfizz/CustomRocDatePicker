@@ -5,28 +5,6 @@ import tailwindcss from '@tailwindcss/vite'
 import eslintPlugin from 'vite-plugin-eslint'
 
 // https://vite.dev/config/
-// export default defineConfig({
-//   base: '/custom-roc-date-picker/',
-//   resolve: {
-//     alias: {
-//       '@': resolve(__dirname, 'src'),
-//     }
-//   },
-//   plugins: [
-//     vue(),
-//     tailwindcss(),
-//     eslintPlugin({
-//       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
-//       cache: false
-//     })
-//   ],
-//   css: {
-//     modules: {
-//       localsConvention: 'camelCase'
-//     }
-//   }
-// })
-
 export default defineConfig(({mode}) => {
   if (mode === 'development') {
     return {
