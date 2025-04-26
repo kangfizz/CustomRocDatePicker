@@ -40,8 +40,9 @@ export default defineConfig(({mode}) => {
         lib: {
           entry: resolve(__dirname, 'src/components/install.js'),
           name: 'custom-roc-date-picker',
+          formats: ["es", "cjs", "umd"],
           // the proper extensions will be added
-          fileName: 'custom-roc-date-picker',
+          fileName: format => `custom-roc-date-picker.${format}.js`
         },
         rollupOptions: {
           // 确保外部化处理那些你不想打包进库的依赖

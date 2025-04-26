@@ -4,6 +4,11 @@
 
 ## Setup (Vite)
 
+- Install
+````
+npm i custom-roc-date-picker
+````
+
 - In `main.js`
 ````javascript
 import CustomRocDatePicker from 'custom-roc-date-picker'

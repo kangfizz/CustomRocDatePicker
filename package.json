@@ -2,6 +2,17 @@
   "name": "custom-roc-date-picker",
   "version": "1.0.1",
   "type": "module",
+  "license": "MIT",
+  "description": "A custom roc date picker component for Vue 3, designed to be easily integrated into any Vue application.",
+  "author": "Fizz Kang <leo77705@gmail.com>",
+  "main": "./dist/custom-roc-date-picker.umd.js",
+  "module": "./dist/custom-roc-date-picker.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/custom-roc-date-picker.es.js",
+      "require": "./dist/custom-roc-date-picker.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
