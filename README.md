@@ -19,13 +19,20 @@ myApp.use(CustomRocDatePicker)
 myApp.mount('#app')
 ````
 
-- In `tailwind.config.js`
+- In `tailwind.config.js` (Tailwindcss version < 4)
 ````javascript
   content: [
     ....
     './node_modules/custom-roc-date-picker/**/*.{vue,js,ts,jsx,tsx}',
   ],
 ````
+
+- In your css file (Tailwindcss version >= 4)
+```css
+@import "tailwindcss";
+@source '../node_modules/custom-roc-date-picker/dist';
+...
+```
 
 ## Usage
 

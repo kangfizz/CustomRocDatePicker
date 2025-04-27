@@ -14,8 +14,7 @@
     ".": {
       "import": "./dist/custom-roc-date-picker.es.js",
       "require": "./dist/custom-roc-date-picker.umd.js"
-    },
-    "./dist/custom-roc-date-picker.css.css": "./dist/custom-roc-date-picker.css.css"
+    }
   },
   "scripts": {
     "dev": "vite",
@@ -30,6 +29,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
     "tailwindcss": "^4.1.4",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

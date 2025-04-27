@@ -497,10 +497,12 @@ export default defineComponent ({
   padding: 10px;
   margin-top: 8px;
   margin-left: -100px;
+  color: #000;
   background: white;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgb(0 0 0 / 20%);
+  
 }
 
 .day-calendar {
