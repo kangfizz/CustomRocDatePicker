@@ -70,3 +70,19 @@
 	- [ESLint v9 + vite 安裝](https://muki.tw/eslint-format-onsave-in-vscode/)
 	  [PUG官網](https://pugjs.org/api/getting-started.html)
 
+
+### Publish to NPM package 流程:
+
+- 1. npm run build (預設build)
+- 2. npm run release
+
+(第一次的時候需要 `npm login` 之後 `npm publish`)
+
+#### debug
+- 可以使用 `npm link` => 在新 project 上 `npm link custom-roc-date-picker`
+
+
+### 更新Github Page
+
+- 1. npm run build:doc (新建立docs/)
+- 2. npm run deploy (使用到 gh-pages 套件幫忙)

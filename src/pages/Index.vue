@@ -12,7 +12,7 @@ const dateThird = ref('')
 </script>
 
 <template lang="pug">
-  .text-center.mb-4.font-bold.text-xl 民國年日期選擇器
+  .text-center.mb-4.font-bold.text-xl 民國年日期選擇器 (CustomRocDatePicker)
   div.flex.flex-wrap.gap-y-6
     div.w-full
       div 類型1: 無預設值(null) + readonly

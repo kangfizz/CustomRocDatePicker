@@ -19,11 +19,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:doc": "vite build --outDir docs --mode development",
-    "preview": "vite preview",
+    "build:doc": "vite build --mode development",
+    "preview": "vite preview --mode development",
     "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx --fix",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d docs",
     "release": "release-it"
   },
   "dependencies": {

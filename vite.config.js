@@ -10,6 +10,10 @@ export default defineConfig(({mode}) => {
   if (mode === 'development') {
     return {
       base: '/custom-roc-date-picker/',
+      build: {
+        outDir: './docs',
+        emptyOutDir: true, // also necessary
+      },
       resolve: {
         alias: {
           '@': resolve(__dirname, 'src'),
@@ -46,10 +50,10 @@ export default defineConfig(({mode}) => {
           fileName: format => `custom-roc-date-picker.${format}.js`
         },
         rollupOptions: {
-          // 确保外部化处理那些你不想打包进库的依赖
+          // 確保外部化處理那些你不想打包進庫的依賴
           external: ['vue'],
           output: {
-            // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
+            // 在 UMD 建構模式下，這些外部化的依賴提供一個全局變量
             globals: {
               vue: 'Vue',
             },
