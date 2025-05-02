@@ -107,7 +107,7 @@
           </div>
           <div>
             <div v-if="selectedType === 'date'" class="day-calendar">
-              <div v-for="weekday in weekdays" :key="weekday" class="mb-4 font-black">{{ weekday }}</div>
+              <div v-for="weekday in weekdays" :key="weekday" class="mb-4 text-center font-black">{{ weekday }}</div>
               <span
                 v-for="blank in firstDayOfMonth"
                 :key="'blank-' + blank"

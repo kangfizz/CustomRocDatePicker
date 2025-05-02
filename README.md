@@ -1,6 +1,7 @@
 # ROCCustomDatePicker
 
-[DOME PAGE](https://kangfizz.github.io/custom-roc-date-picker/)
+- [DOME PAGE](https://kangfizz.github.io/custom-roc-date-picker/)
+- [CodePen DEMO](https://codepen.io/kangfizz/pen/xbbPWvO)
 
 ## Setup (Vite)
 
