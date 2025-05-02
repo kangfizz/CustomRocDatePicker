@@ -28,7 +28,7 @@ const dateThird = ref('')
       div 類型3: 有預設值(民國) + 變更分隔為. + 需要選擇未來日期
       div.mt-2 選擇日期(民國): 
         span.text-xl {{ dateSecond }}
-      roc-custom-date-picker(v-model:date="dateSecond" splitter="." need-future)
+      roc-custom-date-picker(v-model:date="dateSecond" :placeholder="'民國年.月.日'" splitter="." need-future)
     div.w-full
       div 類型4: 無預設值('') +  只需要 icon button
       div.mt-2 選擇日期(民國): 

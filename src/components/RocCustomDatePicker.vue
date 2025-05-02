@@ -154,9 +154,10 @@ export default defineComponent ({
       type: String,
       default: '民國年/月/日',
     },
+    // NOTE: 設定日期的分隔符號，預設是 '/' or '-' or '.'，如果需要定義 專一的符號 或是 其他符號，可以在這裡設定
     splitter: {
       type: String,
-      default: '/',
+      default: '',
     },
     // NOTE: 設定input readonly屬性, 如果為 true 的話, 變成點選後也會開啟日曆
     readonly: {
@@ -186,6 +187,8 @@ export default defineComponent ({
   },
   emits: ['update:date'],
   setup (props, { emit }) {
+
+    const splitterRegex = /[\s/\-.]/
 
     // data
     const isInitial = ref(true) // 用來判斷是否是第一次進入
@@ -251,19 +254,21 @@ export default defineComponent ({
     watch(() => displayedDate.value, (newValue, oldValue) => {
       if (newValue !== oldValue) {
         const isValidDate = new Date(newValue).toString() !== 'Invalid Date'
-        const dateList = newValue.split(props.splitter)
-        if (!isValidDate || dateList.length !== 3) {
+        const splitter = getSplitter(newValue, false)
+        const dateList = splitDate(newValue, splitter)
+        myDate.value = ''
+
+        if (!isValidDate || !dateList) {
           setDefaultCalendar()
           return
         }
-        selectedYear.value = parseInt(dateList[0])
-        selectedMonth.value = parseInt(dateList[1])
-        selectedDay.value = parseInt(dateList[2])
+        selectedYear.value = dateList[0]
+        selectedMonth.value = dateList[1]
+        selectedDay.value = dateList[2]
         // 更改 myDate 的值
+        const displayedSplitter = props.splitter ? props.splitter : splitter
         if (isValidDate && validateDate(selectedYear.value + 1911, selectedMonth.value, selectedDay.value)) {
-          myDate.value = props.autoToRocFormat ? `${selectedYear.value + 1911}/${fillZero(selectedMonth.value)}/${fillZero(selectedDay.value)}` : newValue
-        } else {
-          myDate.value = ''
+          myDate.value = `${selectedYear.value + (props.autoToRocFormat ? 1911 : 0)}${displayedSplitter}${fillZero(selectedMonth.value)}${displayedSplitter}${fillZero(selectedDay.value)}`
         }
       }
     })
@@ -301,20 +306,37 @@ export default defineComponent ({
       generateDayCalendar()
     }
 
+    const splitDate = (dateString, splitter) => {
+      let dateList = []
+      dateList = dateString.split(splitter)
+      // if (props.splitter) dateList =  dateString.split(props.splitter)
+      // else { dateList =  dateString.split(splitterRegex)}
+      if (dateList.length !== 3) return null
+      return dateList.map(d => parseInt(d))
+    }
+
+    // NOTE: 取得分隔符號，若沒有設定 splitter 的話，則會自動判斷
+    const getSplitter = (dateString, needProps = true) => {
+      if (typeof dateString !== 'string') return '/'
+      return (needProps && props.splitter) ? props.splitter : dateString.match(splitterRegex) ? dateString.match(splitterRegex)[0] : '/'
+    }
+
     const checkIsSelectedDate = (day) => {
-      const checkedDate = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(day)}`
+      const splitter = getSplitter(displayedDate.value)
+      const checkedDate = `${selectedYear.value}${splitter}${fillZero(selectedMonth.value)}${splitter}${fillZero(day)}`
       return checkedDate === displayedDate.value
     }
 
     const toggleCalendar = () => {
-      const dateList = displayedDate.value?.split(props.splitter)
+      const splitter = getSplitter(displayedDate.value)
+      const dateList = displayedDate.value?.split(splitter)
       if (!dateList || dateList.length !== 3 || !validateDate(parseInt(dateList[0]) + 1911, parseInt(dateList[1]), parseInt(dateList[2]))) {
         // 如果日期不正確，則設定當前為預設日歷
         setDefaultCalendar()
       } else {
         setCalendar(displayedDate.value)
         // 自動校正顯示日期
-        displayedDate.value = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(selectedDay.value)}`
+        displayedDate.value = `${selectedYear.value}${splitter}${fillZero(selectedMonth.value)}${splitter}${fillZero(selectedDay.value)}`
       }
       setTimeout(() => {
         if (!showCalendar.value) showCalendar.value = true
@@ -346,7 +368,7 @@ export default defineComponent ({
 
     const selectDate = (day) => {
       selectedDay.value = day
-      displayedDate.value = [selectedYear.value, fillZero(selectedMonth.value), fillZero(selectedDay.value)].join(props.splitter)
+      displayedDate.value = [selectedYear.value, fillZero(selectedMonth.value), fillZero(selectedDay.value)].join(getSplitter(displayedDate.value))
       showCalendar.value = false
     }
 
@@ -365,7 +387,7 @@ export default defineComponent ({
     const setCalendar = (dateString, needFormat = false) => {
       
       // 設定基礎年月日與生成日曆
-      const dateList = dateString.split(props.splitter)
+      const dateList = dateString.split(getSplitter(dateString))
       selectedYear.value = needFormat ? parseInt(dateList[0]) - 1911 : parseInt(dateList[0])
       selectedMonth.value = parseInt(dateList[1])
       selectedDay.value = parseInt(dateList[2])
@@ -398,7 +420,8 @@ export default defineComponent ({
     onMounted(() => {
       if (props.date) {
         setCalendar(props.date, props.autoToRocFormat)
-        displayedDate.value = `${selectedYear.value}${props.splitter}${fillZero(selectedMonth.value)}${props.splitter}${fillZero(selectedDay.value)}`
+        const splitter = getSplitter(props.date)
+        displayedDate.value = `${selectedYear.value}${splitter}${fillZero(selectedMonth.value)}${splitter}${fillZero(selectedDay.value)}`
         isInitial.value = false
       } else {
         setDefaultCalendar()
@@ -436,7 +459,9 @@ export default defineComponent ({
       myDate,
       yearRangeIndex,
       currentYearRangeIndex,
-      canClick
+      canClick,
+      splitDate,
+      getSplitter
     }
   },
 })
